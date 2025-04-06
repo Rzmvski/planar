@@ -1,16 +1,34 @@
+type Position = {
+  x: number;
+  y: number;
+};
+type ContrastType = 'black' | 'white';
+type HEX = `#${string}`;
+type RGB = [number, number, number];
+type Customer = {
+  id: number;
+  name: string;
+  age: number;
+  isSubscribed: boolean;
+};
+type NumberedItem<T> = {
+  number: number;
+  value: T;
+};
+
 /**
  * Нужно превратить файл в ts и указать типы аргументов и типы возвращаемого значения
  * */
-export const removePlus = (string) => string.replace(/^\+/, '');
+export const removePlus = (string: string): string => string.replace(/^\+/, '');
 
-export const addPlus = (string) => `+${string}`;
+export const addPlus = (string: string): string => `+${string}`;
 
-export const removeFirstZeros = (value) => value.replace(/^(-)?[0]+(-?\d+.*)$/, '$1$2');
+export const removeFirstZeros = (value: string): string => value.replace(/^(-)?[0]+(-?\d+.*)$/, '$1$2');
 
-export const getBeautifulNumber = (value, separator = ' ') =>
+export const getBeautifulNumber = (value: number, separator = ' ') =>
   value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator);
 
-export const round = (value, accuracy = 2) => {
+export const round = (value: number, accuracy = 2): number => {
   const d = 10 ** accuracy;
   return Math.round(value * d) / d;
 };
@@ -18,7 +36,7 @@ export const round = (value, accuracy = 2) => {
 const transformRegexp =
   /(matrix\(-?\d+(\.\d+)?, -?\d+(\.\d+)?, -?\d+(\.\d+)?, -?\d+(\.\d+)?, )(-?\d+(\.\d+)?), (-?\d+(\.\d+)?)\)/;
 
-export const getTransformFromCss = (transformCssString) => {
+export const getTransformFromCss = (transformCssString: string): Position => {
   const data = transformCssString.match(transformRegexp);
   if (!data) return { x: 0, y: 0 };
   return {
@@ -27,20 +45,20 @@ export const getTransformFromCss = (transformCssString) => {
   };
 };
 
-export const getColorContrastValue = ([red, green, blue]) =>
+export const getColorContrastValue = ([red, green, blue]: number[]): number =>
   // http://www.w3.org/TR/AERT#color-contrast
   Math.round((red * 299 + green * 587 + blue * 114) / 1000);
 
-export const getContrastType = (contrastValue) => (contrastValue > 125 ? 'black' : 'white');
+export const getContrastType = (contrastValue: number): ContrastType => (contrastValue > 125 ? 'black' : 'white');
 
 export const shortColorRegExp = /^#[0-9a-f]{3}$/i;
 export const longColorRegExp = /^#[0-9a-f]{6}$/i;
 
-export const checkColor = (color) => {
+export const checkColor = (color: HEX) => {
   if (!longColorRegExp.test(color) && !shortColorRegExp.test(color)) throw new Error(`invalid hex color: ${color}`);
 };
 
-export const hex2rgb = (color) => {
+export const hex2rgb = (color: HEX): RGB => {
   checkColor(color);
   if (shortColorRegExp.test(color)) {
     const red = parseInt(color.substring(1, 2), 16);
@@ -54,12 +72,17 @@ export const hex2rgb = (color) => {
   return [red, green, blue];
 };
 
-export const getNumberedArray = (arr) => arr.map((value, number) => ({ value, number }));
-export const toStringArray = (arr) => arr.map(({ value, number }) => `${value}_${number}`);
+export const getNumberedArray = <T>(arr: T[]): NumberedItem<T>[] =>
+  arr.map((value, number) => ({
+    value,
+    number,
+  }));
+export const toStringArray = <T>(arr: NumberedItem<T>[]): string[] =>
+  arr.map(({ value, number }) => `${value}_${number}`);
 
-export const transformCustomers = (customers) => {
+export const transformCustomers = (customers: Customer[]): Record<number, Omit<Customer, 'id'>> => {
   return customers.reduce((acc, customer) => {
     acc[customer.id] = { name: customer.name, age: customer.age, isSubscribed: customer.isSubscribed };
     return acc;
-  }, {});
+  }, {} as Record<number, Omit<Customer, 'id'>>);
 };
